@@ -7,9 +7,9 @@ from random_walk import random_walk
 from utils import _generic_input_check, _sample_size_is_reached, TopNHeapq
 
 
-def theoretical_criterion_sampling(first_node, sample_size, directed, successors, predecessors=None, count_type='nodes',
-                                   weight_feature=None, random_walk_init=0.5, random_walk_type='rw', patience=math.inf,
-                                   leaderboard_size=100, neigh_eval_frac=0.1, alpha=None, neighs_type='incoming',verbose=False):
+def tcec_sampling(first_node, sample_size, directed, successors, predecessors=None, count_type='nodes',
+                  weight_feature=None, random_walk_init=0.5, random_walk_type='rw', patience=math.inf,
+                  leaderboard_size=100, neigh_eval_frac=0.1, alpha=None, neighs_type='incoming', verbose=False):
     """
     Search with iterative evaluation of best criterion value, as from reference paper.
     Initialize search with a random walk of size random_walk_init.
@@ -33,8 +33,8 @@ def theoretical_criterion_sampling(first_node, sample_size, directed, successors
           Notice that a node can be any hashable object, but they need to be uniquely identifiable.
           IMPORTANT NOTE: the function successors (as well as predecessors) is called very often. According to the cost
           of the call, one may prefer to store results in memory instead of calling on already seen nodes. This choice
-          is left to the final user, which can decide to memoize successors and predecessors functions, at an increased
-          memory cost but avoiding repeated calls.
+          is left to the final user, which can decide to memoize successors and predecessors functions realizations, at
+          an increased memory cost but avoiding repeated calls.
         - predecessors: like successors, but the adjacency dictionary must contain as keys all the nodes j that are
           contained in edges like j-->i. predecessors defaults to None, but an error is raised if it is not provided
           when directed=True

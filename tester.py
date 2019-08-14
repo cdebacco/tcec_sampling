@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 
-from theoretical_criterion_search import theoretical_criterion_sampling
+from tcec_sampling import tcec_sampling
 
 
 def tester_theoretical_criterion_sampling(verbose=False):
@@ -16,16 +16,16 @@ def tester_theoretical_criterion_sampling(verbose=False):
 
     N_nodes_s = 50
     print('\nSampling with minimum requirment on nodes. Minimum number:', N_nodes_s)
-    subG_n = theoretical_criterion_sampling(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
-                                            successors=successors, sample_size=N_nodes_s,
-                                            count_type='nodes',  patience=1000, neigh_eval_frac=0.1,verbose=verbose)
+    subG_n = tcec_sampling(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
+                           successors=successors, sample_size=N_nodes_s,
+                           count_type='nodes', patience=1000, neigh_eval_frac=0.1, verbose=verbose)
     print('Sampled graph. Nodes and edges:', subG_n.number_of_nodes(), subG_n.number_of_edges())
 
     N_edges_s = 30
     print('\nSampling with minimum requirment on edges. Minimum number:', N_edges_s)
-    subG_e = theoretical_criterion_sampling(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
-                                            successors=successors, sample_size=N_nodes_s,
-                                            count_type='edges', patience=1000, neigh_eval_frac=0.1,verbose=verbose)
+    subG_e = tcec_sampling(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
+                           successors=successors, sample_size=N_nodes_s,
+                           count_type='edges', patience=1000, neigh_eval_frac=0.1, verbose=verbose)
     print('Sampled graph. Nodes and edges:', subG_e.number_of_nodes(), subG_e.number_of_edges())
 
     # test on preferential attachment directed graph
@@ -38,16 +38,16 @@ def tester_theoretical_criterion_sampling(verbose=False):
 
     N_nodes_s = 50
     print('\nSampling with minimum requirment on nodes. Minimum number:', N_nodes_s)
-    subG_n = theoretical_criterion_sampling(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
-                                            patience=1000, predecessors=predecessors, successors=successors,
-                                            sample_size=N_nodes_s, count_type='nodes', neigh_eval_frac=0.1,verbose=verbose)
+    subG_n = tcec_sampling(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
+                           patience=1000, predecessors=predecessors, successors=successors,
+                           sample_size=N_nodes_s, count_type='nodes', neigh_eval_frac=0.1, verbose=verbose)
     print('Sampled graph. Nodes and edges:', subG_n.number_of_nodes(), subG_n.number_of_edges())
 
     N_edges_s = 10
     print('\nSampling with minimum requirment on edges. Minimum number:', N_edges_s)
-    subG_e = theoretical_criterion_sampling(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
-                                            patience=1000, predecessors=predecessors, successors=successors,
-                                            sample_size=N_nodes_s, count_type='edges', neigh_eval_frac=0.1,verbose=verbose)
+    subG_e = tcec_sampling(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
+                           patience=1000, predecessors=predecessors, successors=successors,
+                           sample_size=N_nodes_s, count_type='edges', neigh_eval_frac=0.1, verbose=verbose)
     print('Sampled graph. Nodes and edges:', subG_e.number_of_nodes(), subG_e.number_of_edges())
 
 
