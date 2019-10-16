@@ -1,24 +1,24 @@
 import math
+import time
 
 import networkx as nx
 import numpy as np
 
-from random_walk import random_walk
-from utils import _generic_input_check, _sample_size_is_reached, TopNHeapq
+from .random_walk import random_walk
+from .utils import _generic_input_check, _sample_size_is_reached, TopNHeapq
 
 
 def tcec_sampling(first_node, sample_size, directed, successors, predecessors=None, count_type='nodes',
                   weight_feature=None, random_walk_init=0.5, random_walk_type='rw', patience=math.inf,
-                  leaderboard_size=100, neigh_eval_frac=0.1, alpha=None, neighs_type='incoming', verbose=False):
-    """
-    Search with iterative evaluation of best criterion value, as from reference paper.
-    Initialize search with a random walk of size random_walk_init.
-    INPUT:
-        - first_node: the node from where to start the search. Compliant with networkx, a node can be any hashable
-          object.
-        - sample_size: int, the minimum number of nodes or edges (see count_type) of the final sampled subgraph
-        - directed: bool, if the sampled graph (and therefore, the returned subgraph) is directed
-        - successors: a function of type
+                  leaderboard_size=100, neigh_eval_frac=0.1, alpha=None, neighs_type='incoming', max_time=math.inf,
+                  verbose=False):
+    """ Perform graph exploration with tcec sampling algorithm https://arxiv.org/abs/1908.00388
+
+    :param first_node: the node from where to start the search. Compliant with networkx, a node can be any hashable 
+          object contained in the graph under sampling
+    :param sample_size: int, the minimum number of nodes or edges (see count_type) of the final sampled subgraph
+    :param directed: bool, if the sampled graph (and therefore, the returned subgraph) is directed
+    :param successors: a function of type
           f(node) --> adj_dict
           that, given a node i as input, returns an adjacency dictionary specified as follows.
           The keys are all the nodes j pointed from edges i-->j. The values are (eventually empty) dictionaries
@@ -35,27 +35,33 @@ def tcec_sampling(first_node, sample_size, directed, successors, predecessors=No
           of the call, one may prefer to store results in memory instead of calling on already seen nodes. This choice
           is left to the final user, which can decide to memoize successors and predecessors functions realizations, at
           an increased memory cost but avoiding repeated calls.
-        - predecessors: like successors, but the adjacency dictionary must contain as keys all the nodes j that are
+    :param predecessors: like successors, but the adjacency dictionary must contain as keys all the nodes j that are
           contained in edges like j-->i. predecessors defaults to None, but an error is raised if it is not provided
           when directed=True
-        - count_type: one in ['nodes', 'edges']. If 'nodes', then sample_size is computed as the number of nodes
+    :param count_type: one in ['nodes', 'edges']. If 'nodes', then sample_size is computed as the number of nodes
           visited. If 'edges' the same is done counting the number of edges.
-        - weight_feature: the weight feature that defines the adjacency matrix. Must be present for all edges of G, with
+    :param weight_feature: the weight feature that defines the adjacency matrix. Must be present for all edges of G, with
           numeric type and non negative
-        - random_walk_init: the fraction of the required final graph to be explored at the beginning via random walk. If
+    :param random_walk_init: the fraction of the required final graph to be explored at the beginning via random walk. If
           int, count the number of nodes or edges. If float 0<sample_size<1, the fraction of nodes or edges of the final
           sample
-        - random_walk_type: the type of random walk used for exploration if random_walk_init > 0
-        - patience: patience of initial random walk
-        - leaderbpard_size: the maximum size allowed for the leaderboard
-        - neigh_eval_frac: float, 0 < neigh_frac_eval <=1. The fraction of neighbours to choose at random for criterion
+    :param random_walk_type: the type of random walk used for exploration if random_walk_init > 0
+    :param patience: patience of initial random walk
+    :param leaderboard_size: the maximum size allowed for the leaderboard
+    :param neigh_eval_frac: float, 0 < neigh_frac_eval <=1. The fraction of neighbours to choose at random for criterion
           evaluation (randomization parameter p in reference paper)
-        - alpha: float in [0, 1], parameter used in the theoretical criterion computation. If None, 1 is used for
+    :param alpha: float in [0, 1], parameter used in the theoretical criterion computation. If None, 1 is used for
           undirected graphs and 0.5 for directed ones
-        - neighs_type: one in ['incoming', 'outgoing'], if to define neighbours like incoming or outgoing connections
+    :param neighs_type: one in ['incoming', 'outgoing'], if to define neighbours like incoming or outgoing connections
+    :param max_time: float, time limit (in seconds) before stopping, regardless of the size reached, and returning the
+          sample. Defaults to math.inf, i.e. no time stopping
+    :param verbose: bool, if to include intermediate messages about the sampling procedure
+    :return: networkx.Graph if directed == False, else networkx.DiGraph. Contains the sampled network.
     """
     # check correctness of the inputs
     _generic_input_check(directed, count_type, predecessors)
+
+    t0 = time.time()
 
     # if random_walk_init is a fraction, find the expected sample size from random walk
     if 0 < random_walk_init < 1:
@@ -87,8 +93,11 @@ def tcec_sampling(first_node, sample_size, directed, successors, predecessors=No
                                   for node in border])
 
     # start influence increment sampling
-    while not _sample_size_is_reached(subG, sample_size, count_type):
+    while not _sample_size_is_reached(subG, sample_size, count_type) and time.time() - t0 < max_time:
         if len(leaderboard) == 0:
+            if verbose:
+                print(f'Found empty leaderboard, sample size {subG.number_of_nodes() if count_type=="nodes" else subG.number_of_edges()} {count_type}. '
+                      f'Recomputing leaderboard on new random neighbours.')
             while len(leaderboard) == 0:
                 current_nodes = np.random.choice(list(subG.nodes),
                                                  max(int(subG.number_of_nodes() * neigh_eval_frac), 1)

@@ -4,11 +4,11 @@ import warnings
 import networkx as nx
 import numpy as np
 
-from utils import _generic_input_check, _sample_size_is_reached
+from .utils import _generic_input_check, _sample_size_is_reached
 
 
 def random_walk(first_node, sample_size, directed, successors, predecessors=None, walk_type='rw', count_type='nodes',
-                weight_feature=None, patience=math.inf, restart_patience=10,verbose=False):
+                weight_feature=None, patience=math.inf, restart_patience=10, verbose=False):
     """
     Sample from the input network G.
     INPUT:
@@ -65,7 +65,7 @@ def random_walk(first_node, sample_size, directed, successors, predecessors=None
     # start random walk
     current_node = first_node
     patience_count = 0
-    restart_count= 0
+    restart_count = 0
     while not _sample_size_is_reached(subG, sample_size, count_type):
         try:
             current_node, current_successors = _random_walk_step(current_node, walk_type, directed, successors,
@@ -75,27 +75,27 @@ def random_walk(first_node, sample_size, directed, successors, predecessors=None
             Raised if stuck in a dangling node, i.e. node with no out-going edges.
             In this case we restart from scratch the walk, from the first node again, and erase the sample discovered so far
             '''
-            restart_count+=1
-            if verbose: print("restart_count:",restart_count)
+            restart_count += 1
+            if verbose:
+                print(f'restart_count for random walk: {restart_count}')
 
-            if restart_count>restart_patience:
+            if restart_count > restart_patience:
                 warning_message = 'random walk has not reached the required sample size of {0} {3}, since it has passed the ' \
-                              'maximum number of {1} restart iterations. Stuck too many times in a dangling node. Returning the partial sample collected of ' \
-                              'size {2} {3}'.format(
-                sample_size,
-                restart_patience,
-                subG.number_of_nodes() if count_type == 'nodes' else subG.number_of_edges(),
-                'nodes' if count_type == 'nodes' else 'edges'
+                                  'maximum number of {1} restart iterations. Stuck too many times in a dangling node. Returning the partial sample collected of ' \
+                                  'size {2} {3}'.format(
+                    sample_size,
+                    restart_patience,
+                    subG.number_of_nodes() if count_type == 'nodes' else subG.number_of_edges(),
+                    'nodes' if count_type == 'nodes' else 'edges'
                 )
                 warnings.warn(warning_message)
                 return subG
 
             subG = nx.DiGraph() if directed else nx.Graph()
             subG.add_node(first_node)
-            current_node=first_node
-            current_successors=successors(current_node)
-            patience_count=-1
-        
+            current_node = first_node
+            current_successors = successors(current_node)
+            patience_count = -1
 
         if current_node in subG.nodes():
             patience_count += 1
@@ -141,9 +141,11 @@ def _random_walk_step(current_node, walk_type, directed, successors, predecessor
         elif walk_type == 'mhrw':
             if directed:
                 pred = predecessors(current_node)
-                probs = np.array([min(1., len(pred) / len(predecessors(neigh))) for neigh in succ if neigh != current_node])
+                probs = np.array(
+                    [min(1., len(pred) / len(predecessors(neigh))) for neigh in succ if neigh != current_node])
             else:
-                probs = np.array([min(1., len(succ) / len(successors(neigh))) for neigh in succ if neigh != current_node])
+                probs = np.array(
+                    [min(1., len(succ) / len(successors(neigh))) for neigh in succ if neigh != current_node])
             # sometimes, if the starting node has degree zero, all probabilities are 0. In this case
             # choose a neighbour at random. The convergence of the markov chain is not affected by
             # starting node choice
@@ -157,7 +159,7 @@ def _random_walk_step(current_node, walk_type, directed, successors, predecessor
                 probs = np.array([len(predecessors(neigh)) for neigh in succ])
             else:
                 probs = np.array([len(successors(neigh)) for neigh in succ])
-            probs = probs/sum(probs)
+            probs = probs / sum(probs)
             next_node = np.random.choice(list(succ.keys()), p=probs)
         elif walk_type == 'degree_greedy':
             if directed:
@@ -165,26 +167,3 @@ def _random_walk_step(current_node, walk_type, directed, successors, predecessor
             else:
                 next_node = max(succ, key=lambda x: len(successors(x)))
     return next_node, succ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

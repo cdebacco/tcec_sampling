@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 
-from tcec_sampling import tcec_sampling
+from tcec_sampling.tcec_sampling import tcec_sampling
 
 
 def tester_theoretical_criterion_sampling(verbose=False):

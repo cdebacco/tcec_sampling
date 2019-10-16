@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 
-from tcec_sampling import tcec_sampling
+from tcec_sampling.tcec_sampling import tcec_sampling
 
 
 # Here we propose an example for the usage of our publicly available implementation of the TCEC sampling algorithm
