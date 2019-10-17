@@ -56,7 +56,7 @@ def tcec_sampling(first_node, sample_size, directed, successors, predecessors=No
     :param max_time: float, time limit (in seconds) before stopping, regardless of the size reached, and returning the
           sample. Defaults to math.inf, i.e. no time stopping
     :param verbose: bool, if to include intermediate messages about the sampling procedure
-    :return: networkx.Graph if directed == False, else networkx.DiGraph. Contains the sampled network.
+    :return: networkx.Graph if directed == False, else networkx.DiGraph. Contains the sampled network
     """
     # check correctness of the inputs
     _generic_input_check(directed, count_type, predecessors)
@@ -143,6 +143,7 @@ def tcec_sampling(first_node, sample_size, directed, successors, predecessors=No
 
 
 def _neighbourhood(node, successors, predecessors, directed, neighs_type):
+    """ Compute neighbourhood of a node. All the parameters are passed as input from the main function tcec_sampling """
     if not directed or neighs_type == 'outgoing':
         return successors(node)
     if neighs_type == 'incoming':
@@ -150,6 +151,11 @@ def _neighbourhood(node, successors, predecessors, directed, neighs_type):
 
 
 def _theoretical_criterion(node, successors, predecessors, subG, weight_feature, alpha):
+    """
+    Compute theoretical criterion of node goodness on a given node. The functions successors and predecessors, as well
+    as the objects weight_feature and alpha,  are passed as inputs from the main function tcec_sampling.
+    subG is the graph sampled up to a given moment.
+    """
     b1_T_U_norm = sum(
         _adj_val(node, neigh, successors, weight_feature)**2 * subG.nodes[neigh]['in_deg_weight']
         for neigh in successors(node) if neigh in subG

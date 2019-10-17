@@ -9,15 +9,14 @@ from .utils import _generic_input_check, _sample_size_is_reached
 
 def random_walk(first_node, sample_size, directed, successors, predecessors=None, walk_type='rw', count_type='nodes',
                 weight_feature=None, patience=math.inf, restart_patience=10, verbose=False):
-    """
-    Sample from the input network G.
-    INPUT:
-        - first_node: the node from where to start the search. Compliant with networkx, a node can
-          be any hashable object.
-        - sample_size: int, the minimum number of nodes or edges (see count_type) of the final
+    """ Sample from the input network G using random walk exploration.
+
+    :param first_node: the node from where to start the search. Compliant with networkx, a node can
+          be any hashable object
+    :param sample_size: int, the minimum number of nodes or edges (see count_type) of the final
           sampled subgraph
-        - directed: bool, if the sampled graph (and therefore, the returned subgraph) is directed
-        - successors: a function of type
+    :param directed: bool, if the sampled graph (and therefore, the returned subgraph) is directed
+    :param successors: a function of type
           f(node) --> adj_dict
           that, given a node i as input, returns an adjacency dictionary specified as follows.
           The keys are all the nodes j pointed from edges i-->j. The values are other (eventually
@@ -30,27 +29,30 @@ def random_walk(first_node, sample_size, directed, successors, predecessors=None
             ...
           }
           Notice that a node can be any hashable object, but they need to be all different
-        - predecessors: like successors, but the adjacency dictionary must contain as keys all the
+    :param predecessors: like successors, but the adjacency dictionary must contain as keys all the
           nodes j that are contained in edges like j-->i. predecessors defaults to None, but an error
           is raised if it is not provided when directed=True
-        - walk_type: one of the following
-            'rw': standard random walk. At every step, choose a random neighbour.
-                  Always used when weight_feature!=None
-            'mhrw': metropolis-hastings random walk. Correct probabilities using neighbours degree
-            'degree_weighted_rw': random walk weighted on the degree of the neighbours. A node is chosen with
-                                  probability proportional to its degree
-            'degree_greedy': at every step, choose the neighbour with highest degree in a greedy manner
-        - count_type: one in 'nodes', 'edges'. If 'nodes', then sample_size is computed as the
-          number of nodes visited. If 'edges' the same is done counting the number of edges.
-        - weight_feature: the name of the weight feature to consider when weighting edges during
+    :param walk_type: one of the following
+          'rw': standard random walk. At every step, choose a random neighbour.
+                Always used when weight_feature!=None
+           'mhrw': metropolis-hastings random walk. Correct probabilities using neighbours degree
+           'degree_weighted_rw': random walk weighted on the degree of the neighbours. A node is chosen with
+                                 probability proportional to its degree
+           'degree_greedy': at every step, choose the neighbour with highest degree in a greedy manner
+    :param count_type: one in 'nodes', 'edges'. If 'nodes', then sample_size is computed as the
+          number of nodes visited. If 'edges' the same is done counting the number of edges
+    :param weight_feature: the name of the weight feature to consider when weighting edges during
           the random walk. These values have to be of numeric type and non-negative.
           If None, edges are selected uniformly in the neighbourhood of the node at every step
-        - patience: maximum number of sampling steps where no new nodes are discovered (the walker can keep visiting already visited nodes...). If passed,
-          sampling is prematurely interrupted and the current sampled graph is returned
-        - restart_patience: maximum number of restart from the same first_node. Valid for directed networks where a walker can get stuck in a dangling node
-    OUTPUT:
-        - a new graph object containing the sampled subgraph
+    :param patience: maximum number of sampling steps where no new nodes are discovered (the walker can keep visiting
+           already visited nodes...). If passed, sampling is prematurely interrupted and the current sampled graph is
+           returned
+    :param restart_patience: maximum number of restart from the same first_node. Valid for directed networks where a
+          walker can get stuck in a dangling node
+    :param verbose: bool, if to include intermediate messages about the sampling procedure
+    :return: networkx.Graph if directed == False, else networkx.DiGraph. Contains the sampled network
     """
+
     # check correctness of the inputs
     _generic_input_check(directed, count_type, predecessors)
     supported_walks = ['rw', 'mhrw', 'degree_weighted_rw', 'degree_greedy']

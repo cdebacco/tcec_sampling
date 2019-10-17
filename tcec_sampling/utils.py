@@ -11,6 +11,7 @@ def _sample_size_is_reached(subG, sample_size, count_type):
 
 
 def _generic_input_check(directed, count_type, predecessors):
+    """ Function for input correctness check for function .tcec_sampling.tcec_sampling """
     if count_type not in ['nodes', 'edges']:
         raise ValueError("count_type input must be equal to 'nodes' or 'edges'")
     if directed and predecessors is None:
@@ -36,11 +37,13 @@ def _generic_input_check(directed, count_type, predecessors):
 ##############################################
 
 class TopNHeapq:
-    """
-    max-heap with optional maximum size limit.
-    The input data must contain elements of type (node, influence)
-    """
+    """ max-heap with maximum size limit. The input data must contain elements of type (node, influence) """
     def __init__(self, n, data=[]):
+        """
+
+        :param n: maximum size of the heap structure
+        :param data: iterable containing tuples of type (node, influence)
+        """
         self.max_size = n
         self._removed_token = '<REMOVED>'
 
@@ -72,6 +75,7 @@ class TopNHeapq:
                 yield (node.node_name, -node.influence)
 
     def pop_max(self):
+        """ Pop node of maximum influence out of the heap """
         node = heapq.heappop(self.data)
         # pop nodes until a valid one is picked. Since the non valid ones are not included in the nodes_names
         # there is no need to act on Node._node_names
