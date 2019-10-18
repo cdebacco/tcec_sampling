@@ -1,5 +1,7 @@
 from numbers import Number
 import heapq
+import pickle as pkl
+
 
 
 def _sample_size_is_reached(subG, sample_size, count_type):
@@ -10,13 +12,30 @@ def _sample_size_is_reached(subG, sample_size, count_type):
         return subG.number_of_nodes() >= sample_size
 
 
-def _generic_input_check(directed, count_type, predecessors):
-    """ Function for input correctness check for function .tcec_sampling.tcec_sampling """
+def _generic_input_check(directed, count_type, predecessors, save_every_n):
+    """ Function for input correctness check for function .tcec_sampling.tcec_sampling and random_walk.random_walk"""
     if count_type not in ['nodes', 'edges']:
         raise ValueError("count_type input must be equal to 'nodes' or 'edges'")
     if directed and predecessors is None:
         raise ValueError('since the sampled graph is directed, a function predecessors must be provided as input.'
                          'If instead you are sampling from an undirected graph, set directed=False')
+    if not isinstance(save_every_n, int):
+        raise ValueError('the input save_every_n must be of type int')
+    if save_every_n <= 0:
+        raise ValueError('the input save_every_n must be a non-negative integer')
+
+
+def _intermediate_save_if_necessary(subG, count_type, save_every_n, saving_path):
+    """ Function for intermediate saving of sampled graphs """
+    need_to_save = False
+    if count_type == 'edges' and not subG.number_of_edges() % save_every_n:
+        need_to_save = True
+    elif count_type == 'nodes' and not subG.number_of_nodes() % save_every_n:
+        need_to_save = True
+
+    if need_to_save:
+        with open(saving_path, 'wb') as file:
+            pkl.dump(subG, file)
 
 
 # TopNHeapq is needed for keeping the leaderborad of best nodes in the border of the explored graph.

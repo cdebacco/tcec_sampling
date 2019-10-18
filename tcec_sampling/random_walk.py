@@ -1,14 +1,16 @@
 import math
+import os
 import warnings
 
 import networkx as nx
 import numpy as np
 
-from .utils import _generic_input_check, _sample_size_is_reached
+from .utils import _generic_input_check, _sample_size_is_reached, _intermediate_save_if_necessary
 
 
 def random_walk(first_node, sample_size, directed, successors, predecessors=None, walk_type='rw', count_type='nodes',
-                weight_feature=None, patience=math.inf, restart_patience=10, verbose=False):
+                weight_feature=None, patience=math.inf, restart_patience=10, save_every_n=None, saving_path=None,
+                verbose=False):
     """ Sample from the input network G using random walk exploration.
 
     :param first_node: the node from where to start the search. Compliant with networkx, a node can
@@ -49,12 +51,19 @@ def random_walk(first_node, sample_size, directed, successors, predecessors=None
            returned
     :param restart_patience: maximum number of restart from the same first_node. Valid for directed networks where a
           walker can get stuck in a dangling node
+    :param save_every_n: int. If passed as input, the number of nodes or edges (according to count_type) to sample
+          between automatic saving of sampled graph. If None, no intermediate saving is performed.
+    :param saving_path: used only if save_every_n is not None. path to save intermediate sampled graphs.
+          If None, save in current working directory
     :param verbose: bool, if to include intermediate messages about the sampling procedure
     :return: networkx.Graph if directed == False, else networkx.DiGraph. Contains the sampled network
     """
 
     # check correctness of the inputs
-    _generic_input_check(directed, count_type, predecessors)
+    _generic_input_check(directed, count_type, predecessors, save_every_n)
+    if saving_path is None and save_every_n is not None:
+        saving_path = os.getcwd()
+
     supported_walks = ['rw', 'mhrw', 'degree_weighted_rw', 'degree_greedy']
     if walk_type not in supported_walks:
         raise ValueError('The value assigned to walk_type input is not supported. Please choose a value among',
@@ -119,6 +128,9 @@ def random_walk(first_node, sample_size, directed, successors, predecessors=None
         if directed:
             subG.add_edges_from((other, current_node, ebunch)
                                 for other, ebunch in predecessors(current_node).items() if other in subG)
+
+        _intermediate_save_if_necessary(subG, count_type, save_every_n, saving_path)
+        
     return subG
 
 

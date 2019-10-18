@@ -5,13 +5,13 @@ import networkx as nx
 import numpy as np
 
 from .random_walk import random_walk
-from .utils import _generic_input_check, _sample_size_is_reached, TopNHeapq
+from .utils import _generic_input_check, _sample_size_is_reached, TopNHeapq, _intermediate_save_if_necessary
 
 
 def tcec_sampling(first_node, sample_size, directed, successors, predecessors=None, count_type='nodes',
                   weight_feature=None, random_walk_init=0.5, random_walk_type='rw', patience=math.inf,
                   leaderboard_size=100, neigh_eval_frac=0.1, alpha=None, neighs_type='incoming', max_time=math.inf,
-                  verbose=False):
+                  save_every_n=None, saving_path=None, verbose=False):
     """ Perform graph exploration with tcec sampling algorithm https://arxiv.org/abs/1908.00388
 
     :param first_node: the node from where to start the search. Compliant with networkx, a node can be any hashable 
@@ -55,11 +55,17 @@ def tcec_sampling(first_node, sample_size, directed, successors, predecessors=No
     :param neighs_type: one in ['incoming', 'outgoing'], if to define neighbours like incoming or outgoing connections
     :param max_time: float, time limit (in seconds) before stopping, regardless of the size reached, and returning the
           sample. Defaults to math.inf, i.e. no time stopping
+    :param save_every_n: int. If passed as input, the number of nodes or edges (according to count_type) to sample
+          between automatic saving of sampled graph. If None, no intermediate saving is performed.
+    :param saving_path: used only if save_every_n is not None. path to save intermediate sampled graphs.
+          If None, save in current working directory
     :param verbose: bool, if to include intermediate messages about the sampling procedure
     :return: networkx.Graph if directed == False, else networkx.DiGraph. Contains the sampled network
     """
     # check correctness of the inputs
-    _generic_input_check(directed, count_type, predecessors)
+    _generic_input_check(directed, count_type, predecessors, save_every_n)
+    if saving_path is None and save_every_n is not None:
+        saving_path = os.getcwd()
 
     t0 = time.time()
 
@@ -139,6 +145,9 @@ def tcec_sampling(first_node, sample_size, directed, successors, predecessors=No
         for neigh in neighs:
             infl_neigh = _theoretical_criterion(neigh, successors, predecessors, subG, weight_feature, alpha)
             leaderboard.add(neigh, infl_neigh)
+
+        _intermediate_save_if_necessary(subG, count_type, save_every_n, saving_path)
+
     return subG
 
 
