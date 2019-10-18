@@ -63,6 +63,7 @@ def random_walk(first_node, sample_size, directed, successors, predecessors=None
     _generic_input_check(directed, count_type, predecessors, save_every_n)
     if saving_path is None and save_every_n is not None:
         saving_path = os.getcwd()
+    saving_path = os.path.join(saving_path, 'tmp_sampled_graph.pkl')
 
     supported_walks = ['rw', 'mhrw', 'degree_weighted_rw', 'degree_greedy']
     if walk_type not in supported_walks:

@@ -3,7 +3,6 @@ import heapq
 import pickle as pkl
 
 
-
 def _sample_size_is_reached(subG, sample_size, count_type):
     """ Function for verifying if stopping criterion is satisfied """
     if count_type == 'edges':
@@ -19,19 +18,21 @@ def _generic_input_check(directed, count_type, predecessors, save_every_n):
     if directed and predecessors is None:
         raise ValueError('since the sampled graph is directed, a function predecessors must be provided as input.'
                          'If instead you are sampling from an undirected graph, set directed=False')
-    if not isinstance(save_every_n, int):
-        raise ValueError('the input save_every_n must be of type int')
-    if save_every_n <= 0:
-        raise ValueError('the input save_every_n must be a non-negative integer')
+    if save_every_n is not None:
+        if not isinstance(save_every_n, int):
+            raise ValueError('the input save_every_n must be of type int or None')
+        elif save_every_n <= 0:
+            raise ValueError('the input save_every_n must be a non-negative integer')
 
 
 def _intermediate_save_if_necessary(subG, count_type, save_every_n, saving_path):
     """ Function for intermediate saving of sampled graphs """
     need_to_save = False
-    if count_type == 'edges' and not subG.number_of_edges() % save_every_n:
-        need_to_save = True
-    elif count_type == 'nodes' and not subG.number_of_nodes() % save_every_n:
-        need_to_save = True
+    if save_every_n is not None:
+        if count_type == 'edges' and not subG.number_of_edges() % save_every_n:
+            need_to_save = True
+        elif count_type == 'nodes' and not subG.number_of_nodes() % save_every_n:
+            need_to_save = True
 
     if need_to_save:
         with open(saving_path, 'wb') as file:
