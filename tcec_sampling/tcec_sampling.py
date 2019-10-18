@@ -66,8 +66,7 @@ def tcec_sampling(first_node, sample_size, directed, successors, predecessors=No
     # check correctness of the inputs
     _generic_input_check(directed, count_type, predecessors, save_every_n)
     if saving_path is None and save_every_n is not None:
-        saving_path = os.getcwd()
-    saving_path = os.path.join(saving_path, 'tmp_sampled_graph.pkl')
+        saving_path = os.path.join(os.getcwd(), 'sampled_graph_tmp.pkl')
 
     t0 = time.time()
 
