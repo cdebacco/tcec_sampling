@@ -15,14 +15,14 @@ class TcecSampler:
 
     def __init__(self):
         self.subG = None
-        self.leaderboard = None
+        self._leaderboard = None
 
         # attributes to give as input to the self.sample method
         self.first_node = None
         self.sample_size = None
         self.directed = None
-        self.successors = None
-        self.predecessors = None
+        self._successors = None
+        self._predecessors = None
         self.count_type = None
         self.weight_feature = None
         self.random_walk_init = None
@@ -99,8 +99,8 @@ class TcecSampler:
         self.first_node = first_node
         self.sample_size = sample_size
         self.directed = directed
-        self.successors = successors
-        self.predecessors = predecessors
+        self._successors = successors
+        self._predecessors = predecessors
         self.count_type = count_type
         self.weight_feature = weight_feature
         self.random_walk_type = random_walk_type
@@ -127,8 +127,8 @@ class TcecSampler:
         # perform random walk initialization if required
         current_node = self.first_node
         if self.random_walk_init > 1:
-            self.subG = random_walk(self.first_node, self.random_walk_init, self.directed, self.successors,
-                                    self.predecessors, walk_type=self.random_walk_type, count_type=self.count_type,
+            self.subG = random_walk(self.first_node, self.random_walk_init, self.directed, self._successors,
+                                    self._predecessors, walk_type=self.random_walk_type, count_type=self.count_type,
                                     weight_feature=self.weight_feature, patience=self.patience, verbose=self.verbose)
             border = {neigh for node in self.subG for neigh in
                       self._neighbourhood(node)
@@ -143,21 +143,21 @@ class TcecSampler:
         border = set(np.random.choice(list(border), int(len(border) * self.neigh_eval_frac), replace=False))
         for node in self.subG:
             self.subG.nodes[node]['in_deg_weight'] = sum(self._adj_val(neigh, node)
-                                                    for neigh in (self.predecessors(node) if self.directed else self.successors(node))
+                                                    for neigh in (self._predecessors(node) if self.directed else self._successors(node))
                                                     if neigh in border)
-        self.leaderboard = TopNHeapq(n=self.leaderboard_size,
-                                data=[(node,
+        self._leaderboard = TopNHeapq(n=self.leaderboard_size,
+                                      data=[(node,
                                        self._theoretical_criterion(node))
                                       for node in border])
 
         # start influence increment sampling
         while not self._sample_size_is_reached() and time.time() - t0 < self.max_time:
-            if len(self.leaderboard) == 0:
+            if len(self._leaderboard) == 0:
                 if self.verbose:
                     print(
                         f'Found empty leaderboard, sample size {self.subG.number_of_nodes() if self.count_type == "nodes" else self.subG.number_of_edges()} {self.count_type}. '
                         f'Recomputing leaderboard on new random neighbours.')
-                while len(self.leaderboard) == 0:
+                while len(self._leaderboard) == 0:
                     current_nodes = np.random.choice(list(self.subG.nodes),
                                                      max(int(self.subG.number_of_nodes() * self.neigh_eval_frac), 1)
                                                      )
@@ -165,21 +165,21 @@ class TcecSampler:
                               for current_node in current_nodes
                               for node in self._neighbourhood(current_node)
                               if node not in self.subG}
-                    self.leaderboard = TopNHeapq(n=self.leaderboard_size,
-                                            data=[(node, self._theoretical_criterion(node))
+                    self._leaderboard = TopNHeapq(n=self.leaderboard_size,
+                                                  data=[(node, self._theoretical_criterion(node))
                                                   for node in neighs])
             # select node and add to the sampled graph
-            selected_node = self.leaderboard.pop_max()[0]
-            for node in self.successors(selected_node):
+            selected_node = self._leaderboard.pop_max()[0]
+            for node in self._successors(selected_node):
                 if node in self.subG:
                     self.subG.nodes[node]['in_deg_weight'] -= self._adj_val(selected_node, node) ** 2
             self.subG.add_node(selected_node)
             self.subG.nodes[selected_node]['in_deg_weight'] = 0
             self.subG.add_edges_from((selected_node, neigh, edge_attr)
-                                for neigh, edge_attr in self.successors(selected_node).items() if neigh in self.subG)
+                                     for neigh, edge_attr in self._successors(selected_node).items() if neigh in self.subG)
             if self.directed:
                 self.subG.add_edges_from((in_neigh, selected_node, edge_attr)
-                                    for in_neigh, edge_attr in self.predecessors(selected_node).items() if in_neigh in self.subG)
+                                         for in_neigh, edge_attr in self._predecessors(selected_node).items() if in_neigh in self.subG)
 
             # update the leaderboard with newly discovered neighbours
             neighs = [neigh for neigh in self._neighbourhood(selected_node) if neigh not in self.subG]
@@ -190,20 +190,20 @@ class TcecSampler:
                 self.subG.nodes[selected_node]['in_deg_weight'] += self._adj_val(neigh, selected_node) ** 2
                 if neigh not in border:
                     border.add(neigh)
-                    for node in self.successors(neigh):
+                    for node in self._successors(neigh):
                         if node in self.subG and node != selected_node:
                             self.subG.nodes[node]['in_deg_weight'] += self._adj_val(neigh, node) ** 2
             # update leaderboard
             for neigh in neighs:
                 infl_neigh = self._theoretical_criterion(neigh)
-                self.leaderboard.add(neigh, infl_neigh)
+                self._leaderboard.add(neigh, infl_neigh)
 
             self._intermediate_save_if_necessary()
 
     def _neighbourhood(self, node):
         return (
-            self.successors(node) if not self.directed or self.neighs_type == 'outgoing'
-            else self.predecessors(node)
+            self._successors(node) if not self.directed or self.neighs_type == 'outgoing'
+            else self._predecessors(node)
         )
 
     def _adj_val(self, u, v):
@@ -211,7 +211,7 @@ class TcecSampler:
         Numerical value of the edge from u to v. If no edge is present, return 0. Otherwise return the value
         of the attribute weight_feature attached to the edge. If weight_feature is None, return 1 for existing edges.
         """
-        succ = self.successors(u)
+        succ = self._successors(u)
         if v in succ and self.weight_feature is not None:
             return succ[v][self.weight_feature]
         if v in succ:
@@ -226,17 +226,17 @@ class TcecSampler:
         """
         b1_T_U_norm = sum(
             self._adj_val(node, neigh) ** 2 * self.subG.nodes[neigh]['in_deg_weight']
-            for neigh in self.successors(node) if neigh in self.subG
+            for neigh in self._successors(node) if neigh in self.subG
         )
 
         if self.subG.is_directed():
             # sum of connections from node to sample
             b1_norm = sum(
-                self._adj_val(node, neigh) ** 2 for neigh in self.successors(node) if neigh in self.subG
+                self._adj_val(node, neigh) ** 2 for neigh in self._successors(node) if neigh in self.subG
             )
             # sum of connections from outside the sample to the node
             b3_norm = sum(
-                self._adj_val(neigh, node) ** 2 for neigh in self.predecessors(node) if
+                self._adj_val(neigh, node) ** 2 for neigh in self._predecessors(node) if
                 neigh not in self.subG
             )
 
@@ -249,7 +249,7 @@ class TcecSampler:
                     self._adj_val(node, neigh) ** 2 if neigh in self.subG
                     else -(1 - self.alpha) * self._adj_val(neigh, node) ** 2
                 )
-                for neigh in self.successors(node) if neigh in self.subG
+                for neigh in self._successors(node) if neigh in self.subG
             )
             return b1_norm_minus_b3_norm + (1 - self.alpha) * b1_T_U_norm
 
