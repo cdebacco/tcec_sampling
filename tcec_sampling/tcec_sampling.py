@@ -118,6 +118,8 @@ class TcecSampler:
         # if random_walk_init is a fraction, find the expected sample size from random walk
         if 0 < random_walk_init < 1:
             self.random_walk_init = np.ceil(random_walk_init * self.sample_size)
+        else:
+            self.random_walk_init = random_walk_init
         if alpha is None:
             self.alpha = 0.5 if self.directed else 1
 
