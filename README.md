@@ -6,7 +6,7 @@ Implementing the TCEC sampling algorithm (https://arxiv.org/abs/1908.00388) in P
 
 ### Sampling an undirected network
 All the functionalities are provided by the TcecSampler class. To perform exploration one just needs to 
-provide define a `successors` function that, given a node, returns all its neighbours. 
+provide a `successors` function that, given a node, returns all its neighbours. 
 This will be passed as input at sampling time and called by the sampler when the neighbours of
 a node are needed by the algorithm.
 Notice that by _neighbours_ of a node in an undirected graph we mean all the nodes connected to it.
@@ -108,6 +108,7 @@ print(f'The sampled subgraph has {subgraph.number_of_nodes()} nodes and {subgrap
 ```
 
 ## Remarks
+### Memoizing in case of heavy neighbourhood exploration
 The structure of the sampler has been designed to allow sampling of out-of-memory graphs. For this reason we need to 
 pass the function `successors` (and eventually `predecessors`) as input.
 
@@ -115,6 +116,12 @@ In many scenarios, exploring a node could be the major cost in the sampling proc
 cost is left to the final user. Notably, one may wish to memoize the calls to these functions not to perform costly 
 operations more times. As this could be memory heavy, also saving the outputs in files that are then re-opened at need 
 could be a major time saver. 
+
+### Defining nodes
+As the sampler relies on the networkx implementation of graphs, any valid node in networkx can be used as a node in 
+the function. This means that any hashable (therefore, immutable) object can be intended as a node. 
+However, the `successors` and `predecessors` functions must be able to accept as input any node object in the network.  
+
 
 ## Other options and output
 The TcecSampler.sample method has many options. For a full overview type `help(TcecSampler().sample)`. 
