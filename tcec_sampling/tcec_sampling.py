@@ -2,7 +2,6 @@ import math
 import os
 import time
 
-import pickle as pkl
 import networkx as nx
 import numpy as np
 
