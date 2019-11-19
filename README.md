@@ -112,7 +112,7 @@ print(f'The sampled subgraph has {subgraph.number_of_nodes()} nodes and {subgrap
 The structure of the sampler has been designed to allow sampling out-of-memory graphs. For this reason we need to 
 pass the function `successors` (and eventually `predecessors`) as input.
 
-In many scenarios, exploring a node could be the major cost in the sampling procedure. Imagine for example having to ù
+In many scenarios, exploring a node could be the major cost in the sampling procedure. Imagine for example having to
 download and scrape an html page, or performing expensive database queries. The choice of how to handle this 
 cost is left to the final user. Notably, one may wish to memoize the calls to these functions not to perform costly 
 operations more times. As this could be memory heavy, also saving the outputs in files that are then re-opened at need 
