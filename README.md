@@ -135,3 +135,6 @@ sampled subgraph in pickle format. In case it is passed, also the argument savin
  graph, has to be passed.
 - verbose: bool. It True, print intermediate messages about status of the sampling procedure.
 
+
+All these arguments are saved as attributes of the TcecSampler instance after the call of .sample method. In addition, 
+the .subG attribute stores the sampled graph as a networkx object.
