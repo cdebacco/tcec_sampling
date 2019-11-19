@@ -2,12 +2,12 @@ import math
 import os
 import time
 
-import dill
+import pickle as pkl
 import networkx as nx
 import numpy as np
 
 from .random_walk import random_walk
-from .utils import _generic_input_check, _sample_size_is_reached, TopNHeapq
+from .utils import _generic_input_check, _sample_size_is_reached, TopNHeapq, _intermediate_save_if_necessary
 
 
 class TcecSampler:
@@ -113,7 +113,7 @@ class TcecSampler:
         self.verbose = verbose
 
         if saving_path is None and save_every_n is not None:
-            self.saving_path = os.path.join(os.getcwd(), 'tcec_sampled_subgraph.dill')
+            self.saving_path = os.path.join(os.getcwd(), 'tcec_sampled_subgraph.pkl')
 
         # if random_walk_init is a fraction, find the expected sample size from random walk
         if 0 < random_walk_init < 1:
@@ -259,18 +259,7 @@ class TcecSampler:
         return _sample_size_is_reached(self.subG, self.sample_size, self.count_type)
 
     def _intermediate_save_if_necessary(self):
-        """ Function for intermediate saving of sampled graphs """
-        need_to_save = False
-        if self.save_every_n is not None:
-            if self.count_type == 'edges' and not self.subG.number_of_edges() % self.save_every_n:
-                need_to_save = True
-            elif self.count_type == 'nodes' and not self.subG.number_of_nodes() % self.save_every_n:
-                need_to_save = True
-
-        if need_to_save:
-            with open(self.saving_path, 'wb') as file:
-                dill.dump(self.subG, file)
-
+        _intermediate_save_if_necessary(self.subG, self.count_type, self.save_every_n, self.saving_path)
 
 
 
