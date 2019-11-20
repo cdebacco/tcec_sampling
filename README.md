@@ -90,7 +90,7 @@ directed = True
 sample_size = 10   
 
 sampler = TcecSampler()
-sampler.sample(first_node, sample_size, directed, successors)
+sampler.sample(first_node, sample_size, directed, successors, predecessors=predecessors)
 ```
  
 ## Complete example
@@ -118,7 +118,7 @@ print('Example of output from the successors function:', successors(53))
 print('Example of output from the predecessors function:', predecessors(10))
 
 # start sampling procedure
-sampler.sample(first_node, directed, sample_size, successors, successors)
+sampler.sample(first_node, directed, sample_size, successors, predecessors=predecessors)
 
 # the sampled subgraph is stored as a sampler attribute, and is a networkx object
 subgraph = sampler.subG
