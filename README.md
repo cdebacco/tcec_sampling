@@ -20,6 +20,42 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Complete example
+Example of how to run the sampler on a synthetic direct graph generated using `networkx`.  
+Alternatively, if your full network is contained in a file, e.g. edgelist format stored in `adjacency.dat`, please first read it as input and transform it into a `networkx` Graph object as in the commented line below. 
+This example, along with others, is contained in the file `example.py`.  
+
+```python
+import networkx as nx
+import numpy as np 
+from tcec_sampling import TcecSampler
+
+'''
+Input or generate netowrk
+'''
+#G = nx.read_edgelist('adjacency.dat', create_using=nx.DiGraph()) # input full (giant) network from file named 'adjacency.dat'
+G = nx.scale_free_graph(1000)   # generate a directed scale-free graph of 1000 nodes
+
+sampler = TcecSampler()
+
+# parameters for sampling
+first_node = np.random.choice(list(G.nodes()))
+directed = True
+sample_size = 100
+
+successors = lambda node: dict(G[node])
+predecessors = lambda node: dict({pred: G.adj[pred][node] for pred in G.predecessors(node)})
+print('Example of output from the successors function:', successors(53))
+print('Example of output from the predecessors function:', predecessors(10))
+
+# start sampling procedure
+sampler.sample(first_node, directed, sample_size, successors, predecessors=predecessors)
+
+# the sampled subgraph is stored as a sampler attribute, and is a networkx object
+subgraph = sampler.subG
+print(f'The sampled subgraph has {subgraph.number_of_nodes()} nodes and {subgraph.number_of_edges()} edges')
+```
+
 ## Basic functionality 
 
 ### Sampling an undirected network
@@ -93,40 +129,8 @@ sampler = TcecSampler()
 sampler.sample(first_node, sample_size, directed, successors, predecessors=predecessors)
 ```
  
-## Complete example
-The code is contained in the file `example.py`. We generate a synthetic graph and sample it using the
-TCEC sampling algorithm
-
-```python
-import networkx as nx
-import numpy as np 
-from tcec_sampling import TcecSampler
-
-# generate a directed scale-free graph of 1000 nodes
-G = nx.scale_free_graph(1000)   
-
-sampler = TcecSampler()
-
-# parameters for sampling
-first_node = np.random.choice(list(G.nodes()))
-directed = True
-sample_size = 100
-
-successors = lambda node: dict(G[node])
-predecessors = lambda node: dict({pred: G.adj[pred][node] for pred in G.predecessors(node)})
-print('Example of output from the successors function:', successors(53))
-print('Example of output from the predecessors function:', predecessors(10))
-
-# start sampling procedure
-sampler.sample(first_node, directed, sample_size, successors, predecessors=predecessors)
-
-# the sampled subgraph is stored as a sampler attribute, and is a networkx object
-subgraph = sampler.subG
-print(f'The sampled subgraph has {subgraph.number_of_nodes()} nodes and {subgraph.number_of_edges()} edges')
-```
-
 ## Remarks
-### Memoizing in case of heavy neighbourhood exploration
+### Strategies for speeding up the algorithm
 The structure of the sampler has been designed to allow sampling out-of-memory graphs. For this reason we need to 
 pass the function `successors` (and eventually `predecessors`) as input.
 
