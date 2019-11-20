@@ -132,12 +132,10 @@ pass the function `successors` (and eventually `predecessors`) as input.
 
 In many scenarios, exploring a node could be the major cost in the sampling procedure. Imagine for example having to
 download and scrape an html page, or performing expensive database queries. The choice of how to handle this 
-cost is left to the final user. Notably, one may wish to memoize the calls to these functions not to perform costly 
-operations more times. As this could be memory heavy, also saving the outputs in files that are then re-opened at need 
-could be a major time saver. 
+cost is left to the final user. For instance, one should store in memory the calls to these functions in order to avoid performing costly operations repeatedly. As this could be memory heavy, alternatively, one could save the outputs in files that are then re-opened "at need", this could also be a major time saver. 
 
 ### Defining nodes
-As the sampler relies on the networkx implementation of graphs, any valid node in networkx can be used as a node in 
+As the sampler relies on the networkx implementation of networks, any valid node in networkx can be used as a node in 
 the function. This means that any hashable (therefore, immutable) object can be intended as a node. 
 However, the `successors` and `predecessors` functions must be able to accept as input any node object in the network.  
 
@@ -146,21 +144,21 @@ However, the `successors` and `predecessors` functions must be able to accept as
 The TcecSampler.sample method has many options. For a full overview type `help(TcecSampler().sample)`. 
 Some of the notable ones are:
 
-- **count_type**: either `'nodes'` or `'edges'`, defaults to `'nodes'`. How to count the sample size
+- **count_type**: either `'nodes'` or `'edges'`, defaults to `'nodes'`. How to count the sample size.
 - **weight_feature**: as the TCEC algorithm works on weighted non negative graphs, one may wish to use a non binary 
 edge representation. weight_feature is the key that is used to retrieve the edge value from the adjacency dictionary 
 returned by the functions `successors` and `predecessors`. Notice that if passed as input, the argument weight_feature
 must be present as key of every adjacency dictionary returned from the two functions.
-- **leaderboard_size**: size of the leaderboard kept by the algorithm, as from reference paper
+- **leaderboard_size**: size of the leaderboard kept by the algorithm, as from reference paper [1].
 - **neigh_eval_frac**: float in the range (0, 1]. The randomization level `p` in the reference paper. It is the random 
-fraction of new neighbours explored at every sampling step
-- **max_time**: float, in seconds. maximum sampling time before stopping, even if the required sampled size has not been 
-reached
+fraction of new neighbours explored at every sampling step.
+- **max_time**: float, in seconds. Maximum sampling time before stopping, even if the required sampled size has not been 
+reached.
 - **save_every_n**: int. Number of sampled nodes or edges (according to count_type) between intermediate savings of the 
-sampled subgraph in pickle format. In case it is passed, also the argument saving_path, specifying the path to the saved
- graph, has to be passed.
-- **verbose**: bool. If True, print intermediate messages about the status of the sampling procedure
+sampled subgraph in pickle format. In case this parameter is passed, one should also pass the argument `saving_path`, specifying the path to the saved graph.
+- **saving_path**: path. Output file for the sampled network.
+- **verbose**: bool. If True, print intermediate messages about the status of the sampling procedure.  
 
 
-All these arguments are saved as attributes of the TcecSampler instance after the call of .sample method. In addition, 
-the .subG attribute stores the sampled graph as a networkx object.
+All these arguments are saved as attributes of the TcecSampler instance after the call of `.sample method`. In addition, 
+the `.subG` attribute stores the sampled graph as a networkx object.
