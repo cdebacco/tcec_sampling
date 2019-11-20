@@ -1,6 +1,24 @@
-# TCEC Sampling
+# TCEC network sampling
 
-Implementing the TCEC sampling algorithm (https://arxiv.org/abs/1908.00388) in Python.
+Python implementation of the TCEC sampling algorithm described in:
+* [1] N Ruggeri and C De Bacco, _Sampling on Networks: Estimating Eigenvector Centrality on Incomplete Networks_, COMPLEX NETWORKS 2019, SCI 881, pp. 1–12, 2020 (DOI will soon appear online here )
+
+This is a new sampling method to estimate eigenvector centrality on incomplete networks. 
+The sampling algorithm is theoretically grounded by results derived from spectral approximation theory.   
+
+The paper can be found here:
+* [Published version](https://doi.org/10.1007/978-3-030-36687-2_8) (soon to appear online...).
+* [Preprint version](https://arxiv.org/abs/1908.00388).  
+
+If you use this code please cite [1].
+
+Copyright (c) 2019 [Nicolò Ruggeri](https://www.is.mpg.de/person/nruggeri) and [Caterina De Bacco](http://cdebacco.com).
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Basic functionality 
 
