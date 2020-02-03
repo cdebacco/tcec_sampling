@@ -120,7 +120,7 @@ class TcecSampler:
         else:
             self.random_walk_init = random_walk_init
         if alpha is None:
-            self.alpha = 0.5 if self.directed else 1
+            self.alpha = 0.5 if self.directed else 0.
 
         # start sampling procedure
         t0 = time.time()
