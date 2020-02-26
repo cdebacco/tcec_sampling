@@ -31,7 +31,7 @@ import numpy as np
 from tcec_sampling import TcecSampler
 
 '''
-Input or generate netowrk
+Input or generate network
 '''
 #G = nx.read_edgelist('adjacency.dat', create_using=nx.DiGraph()) # input full (giant) network from file named 'adjacency.dat'
 G = nx.scale_free_graph(1000)   # generate a directed scale-free graph of 1000 nodes
