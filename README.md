@@ -12,6 +12,9 @@ The paper can be found here:
 
 If you use this code please cite [1].
 
+An example of an application using this code is:
+* [Preprint version](https://arxiv.org/abs/2003.04823)
+
 Copyright (c) 2019 [Nicolò Ruggeri](https://www.is.mpg.de/person/nruggeri) and [Caterina De Bacco](http://cdebacco.com).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
