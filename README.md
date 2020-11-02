@@ -4,18 +4,19 @@ Python implementation of the TCEC sampling algorithm described in:
 * [1] N Ruggeri and C De Bacco, _Sampling on Networks: Estimating Eigenvector Centrality on Incomplete Networks_, Complex Networks and Their Applications VIII, Springer International Publishing, pp. 90--101, 2020. 
 
 An extended analysis of the sampler can be found here:
-* [2] N Ruggeri and C De Bacco, _Sampling on networks: estimating spectral centrality measures and their impact in evaluating other relevant network measures_, Applied Network Science (Accepted), 2020.
+* [2] N Ruggeri and C De Bacco, _Sampling on networks: estimating spectral centrality measures and their impact in evaluating other relevant network measures_, Applied Network Science, 5:81, 2020.
 
 This is a new sampling method to estimate eigenvector centrality on incomplete networks. 
 The sampling algorithm is theoretically grounded by results derived from spectral approximation theory.   
 
-The paper can be found here:
+The paper [1] can be found here:
 * [Published version](https://doi.org/10.1007/978-3-030-36687-2_8).
 * [Preprint version](https://arxiv.org/abs/1908.00388).  
 
 If you use this code please cite [1].
 
-An example of an application using this code is:
+An example of an application using this code is in [2]:
+* [Published version](https://rdcu.be/b9oxH)
 * [Preprint version](https://arxiv.org/abs/2003.04823)
 
 Copyright (c) 2019 [Nicolò Ruggeri](https://www.is.mpg.de/person/nruggeri) and [Caterina De Bacco](http://cdebacco.com).
