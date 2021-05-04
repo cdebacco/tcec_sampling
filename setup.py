@@ -9,5 +9,5 @@ setup(
     author="Nicolò Ruggeri, Caterina De Bacco",
     author_email="nicolo.ruggeri@tuebingen.mpg.de, caterina.debacco@tuebingen.mpg.de",
     description="TCEC sampling algorithm on networks.",
-    install_requires=["numpy==1.18.5", "networkx==2.4"],
+    install_requires=["numpy>=1.18.5", "networkx>=2.4"],
 )
