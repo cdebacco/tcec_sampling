@@ -27,6 +27,26 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Installation
+For installing there are two options.
+
+### Via pip
+To directly install `tcec_sampling` in your Python environment, simply use the following command  
+```
+pip install git+https://github.com/cdebacco/tcec_sampling.git
+```
+The package will be automatically downloaded and installed with all its dependencies. After that, it can be imported in
+your Python code like any other package.
+
+### Download locally and install
+Alternatively, to attain the same effect, simply clone this repository via `git clone`. After that, from inside the 
+folder run the terminal command:
+```
+pip install .
+```
+
+
+
 ## Complete example
 Example of how to run the sampler on a synthetic direct graph generated using `networkx`.  
 Alternatively, if your full network is contained in a file, e.g. edgelist format stored in `adjacency.dat`, please first read it as input and transform it into a `networkx` Graph object as in the commented line below. 
