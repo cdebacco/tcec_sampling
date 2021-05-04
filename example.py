@@ -27,22 +27,38 @@ from tcec_sampling import TcecSampler
 # for directed graphs the sampling algorithm requires two functions: the successors function, returning outgoing
 # connections of a node, and the predecessors function, returning the incoming connections.
 
-print('Generating scale-free synthetic graph...')
-G = nx.scale_free_graph(n=1000)   # generating a directed graph
+print("Generating scale-free synthetic graph...")
+G = nx.scale_free_graph(n=1000)  # generating a directed graph
 assert G.is_directed()
-print('Total graph number of nodes and edges:', G.number_of_nodes(), G.number_of_edges())
+print(
+    "Total graph number of nodes and edges:", G.number_of_nodes(), G.number_of_edges()
+)
 
 sampler = TcecSampler()
 successors = lambda node: dict(G[node])
-predecessors = lambda node: dict({pred: G.adj[pred][node] for pred in G.predecessors(node)})
+predecessors = lambda node: dict(
+    {pred: G.adj[pred][node] for pred in G.predecessors(node)}
+)
 N_nodes = 100
-print('\nSampling with minimum requirement on nodes. Number of nodes to be sampled:', N_nodes)
-sampler.sample(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
-               predecessors=predecessors, successors=successors, sample_size=N_nodes)
+print(
+    "\nSampling with minimum requirement on nodes. Number of nodes to be sampled:",
+    N_nodes,
+)
+sampler.sample(
+    first_node=np.random.choice(list(G.nodes())),
+    directed=G.is_directed(),
+    predecessors=predecessors,
+    successors=successors,
+    sample_size=N_nodes,
+)
 
 # all the information is stored as sampler attributes. In particular, the sampled subgraph is stored as sampler.subG
 # and is a networkx.Graph or networkx.DiGraph object (https://networkx.github.io/documentation/latest/).
-print('Sampled graph. Nodes and edges:', sampler.subG.number_of_nodes(), sampler.subG.number_of_edges())
+print(
+    "Sampled graph. Nodes and edges:",
+    sampler.subG.number_of_nodes(),
+    sampler.subG.number_of_edges(),
+)
 
 
 ######################################################
@@ -51,29 +67,28 @@ print('Sampled graph. Nodes and edges:', sampler.subG.number_of_nodes(), sampler
 # In the case of an undirected graph the function just needs a successors function, as incoming and outgoing edges are
 # the same.
 
-print('Generating erdos-renyi synthetic graph...')
-G = nx.erdos_renyi_graph(n=500, p=0.1)   # generating an undirected graph
+print("Generating erdos-renyi synthetic graph...")
+G = nx.erdos_renyi_graph(n=500, p=0.1)  # generating an undirected graph
 assert not G.is_directed()
-print('Total graph number of nodes and edges:', G.number_of_nodes(), G.number_of_edges())
+print(
+    "Total graph number of nodes and edges:", G.number_of_nodes(), G.number_of_edges()
+)
 
 sampler = TcecSampler()
 successors = lambda node: dict(G[node])
 N_nodes = 100
-print('\nSampling with minimum requirement on nodes. Number of nodes to be sampled:', N_nodes)
-sampler.sample(first_node=np.random.choice(list(G.nodes())), directed=G.is_directed(),
-               successors=successors, sample_size=N_nodes)
-print('Sampled graph. Nodes and edges:', sampler.subG.number_of_nodes(), sampler.subG.number_of_edges())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print(
+    "\nSampling with minimum requirement on nodes. Number of nodes to be sampled:",
+    N_nodes,
+)
+sampler.sample(
+    first_node=np.random.choice(list(G.nodes())),
+    directed=G.is_directed(),
+    successors=successors,
+    sample_size=N_nodes,
+)
+print(
+    "Sampled graph. Nodes and edges:",
+    sampler.subG.number_of_nodes(),
+    sampler.subG.number_of_edges(),
+)

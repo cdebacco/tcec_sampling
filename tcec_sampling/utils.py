@@ -5,37 +5,39 @@ import pickle as pkl
 
 def _sample_size_is_reached(subG, sample_size, count_type):
     """ Function for verifying if stopping criterion is satisfied """
-    if count_type == 'edges':
+    if count_type == "edges":
         return subG.number_of_edges() >= sample_size
-    if count_type == 'nodes':
+    if count_type == "nodes":
         return subG.number_of_nodes() >= sample_size
 
 
 def _generic_input_check(directed, count_type, predecessors, save_every_n):
     """ Function for input correctness check for function .tcec_sampling.tcec_sampling and random_walk.random_walk"""
-    if count_type not in ['nodes', 'edges']:
+    if count_type not in ["nodes", "edges"]:
         raise ValueError("count_type input must be equal to 'nodes' or 'edges'")
     if directed and predecessors is None:
-        raise ValueError('since the sampled graph is directed, a function predecessors must be provided as input.'
-                         'If instead you are sampling from an undirected graph, set directed=False')
+        raise ValueError(
+            "since the sampled graph is directed, a function predecessors must be provided as input."
+            "If instead you are sampling from an undirected graph, set directed=False"
+        )
     if save_every_n is not None:
         if not isinstance(save_every_n, int):
-            raise ValueError('the input save_every_n must be of type int or None')
+            raise ValueError("the input save_every_n must be of type int or None")
         elif save_every_n <= 0:
-            raise ValueError('the input save_every_n must be a non-negative integer')
+            raise ValueError("the input save_every_n must be a non-negative integer")
 
 
 def _intermediate_save_if_necessary(subG, count_type, save_every_n, saving_path):
     """ Function for intermediate saving of sampled graphs """
     need_to_save = False
     if save_every_n is not None:
-        if count_type == 'edges' and not subG.number_of_edges() % save_every_n:
+        if count_type == "edges" and not subG.number_of_edges() % save_every_n:
             need_to_save = True
-        elif count_type == 'nodes' and not subG.number_of_nodes() % save_every_n:
+        elif count_type == "nodes" and not subG.number_of_nodes() % save_every_n:
             need_to_save = True
 
     if need_to_save:
-        with open(saving_path, 'wb') as file:
+        with open(saving_path, "wb") as file:
             pkl.dump(subG, file)
 
 
@@ -56,8 +58,10 @@ def _intermediate_save_if_necessary(subG, count_type, save_every_n, saving_path)
 ###############################################
 ##############################################
 
+
 class TopNHeapq:
     """ max-heap with maximum size limit. The input data must contain elements of type (node, influence) """
+
     def __init__(self, n, data=[]):
         """
 
@@ -65,25 +69,33 @@ class TopNHeapq:
         :param data: iterable containing tuples of type (node, influence)
         """
         self.max_size = n
-        self._removed_token = '<REMOVED>'
+        self._removed_token = "<REMOVED>"
 
         # initialize the list of nodes
         def node_if_valid(node, influence):
             if node == self._removed_token:
-                raise ValueError('no node can have name', self._removed_token,
-                                 'which is a protected expression for instances of', self.__class__)
+                raise ValueError(
+                    "no node can have name",
+                    self._removed_token,
+                    "which is a protected expression for instances of",
+                    self.__class__,
+                )
             return Node(node, -influence)
 
         if len(data) > 0:
             # invert sign of numerical value, as we want to turn min-heap into max-heap
-            data = list(sorted([node_if_valid(node, influence) for node, influence in data]))[:self.max_size]
+            data = list(
+                sorted([node_if_valid(node, influence) for node, influence in data])
+            )[: self.max_size]
             heapq.heapify(data)
 
         self.data = data
         self._node_names = {node.node_name for node in data}
         if len(self.data) != len(self._node_names):
-            raise ValueError('there are nodes with same name (even if possibly different value). Give unique ' +
-                             'identifiers as node names')
+            raise ValueError(
+                "there are nodes with same name (even if possibly different value). Give unique "
+                + "identifiers as node names"
+            )
         self._removed_count = 0
 
     def __len__(self):
@@ -137,7 +149,9 @@ class TopNHeapq:
 
     def remove(self, node_name):
         if node_name not in self._node_names:
-            raise ValueError('The input', node_name, 'is not contained in the elements of the heap')
+            raise ValueError(
+                "The input", node_name, "is not contained in the elements of the heap"
+            )
         idx = self.data.index(Node(node_name))
         self.data[idx] = Node(self._removed_token, None)
         self._node_names.remove(node_name)
@@ -150,17 +164,21 @@ class Node:
         self.influence = influence
 
     def __repr__(self):
-        return '({}, {})'.format(self.node_name, -self.influence)
+        return "({}, {})".format(self.node_name, -self.influence)
 
     def __lt__(self, other):
         if isinstance(other, Node):
             return self.influence < other.influence
-        raise NotImplementedError('cannot compare type ', type(self), 'with type', type(other))
+        raise NotImplementedError(
+            "cannot compare type ", type(self), "with type", type(other)
+        )
 
     def __gt__(self, other):
         if isinstance(other, Node):
             return self.influence > other.influence
-        raise NotImplementedError('cannot compare type ', type(self), 'with type', type(other))
+        raise NotImplementedError(
+            "cannot compare type ", type(self), "with type", type(other)
+        )
 
     # the __eq__ and __hash__methods have to be coherent. Since two nods are defined equal if they have the same
     # node_name attribute (regardless of the score attribute), the __hash__ method will invoke the hashing on
@@ -168,15 +186,22 @@ class Node:
     def __eq__(self, other):
         if isinstance(other, Node):
             return self.node_name == other.node_name
-        raise NotImplementedError('cannot compare type ', type(self), 'with type', type(other))
+        raise NotImplementedError(
+            "cannot compare type ", type(self), "with type", type(other)
+        )
 
     def __hash__(self):
         return self.node_name.__hash__()
 
     def __mul__(self, other):
         if isinstance(other, Number):
-            return Node(self.node_name, self.influence*other)
-        raise NotImplementedError('cannot multiply an object of type ', type(self), 'with one of type', type(other))
+            return Node(self.node_name, self.influence * other)
+        raise NotImplementedError(
+            "cannot multiply an object of type ",
+            type(self),
+            "with one of type",
+            type(other),
+        )
 
     __rmul__ = __mul__
 
@@ -184,4 +209,9 @@ class Node:
         if isinstance(other, Number):
             self.influence *= other
         else:
-            raise NotImplementedError('cannot multiply an object of type ', type(self), 'with one of type', type(other))
+            raise NotImplementedError(
+                "cannot multiply an object of type ",
+                type(self),
+                "with one of type",
+                type(other),
+            )
