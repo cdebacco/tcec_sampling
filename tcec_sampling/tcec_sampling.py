@@ -1,9 +1,9 @@
 import math
 import os
 import time
+import random
 
 import networkx as nx
-import numpy as np
 
 from .random_walk import random_walk
 from .utils import (
@@ -138,7 +138,7 @@ class TcecSampler:
 
         # if random_walk_init is a fraction, find the expected sample size from random walk
         if 0 < random_walk_init < 1:
-            self.random_walk_init = np.ceil(random_walk_init * self.sample_size)
+            self.random_walk_init = math.ceil(random_walk_init * self.sample_size)
         else:
             self.random_walk_init = random_walk_init
         if alpha is None:
@@ -176,8 +176,8 @@ class TcecSampler:
         # add custom_weight to every node in sample.
         # It is the sum of weights of connections coming from border nodes into a sampled node
         border = set(
-            np.random.choice(
-                list(border), int(len(border) * self.neigh_eval_frac), replace=False
+            random.sample(
+                list(border), int(len(border) * self.neigh_eval_frac)
             )
         )
         for node in self.subG:
@@ -204,7 +204,7 @@ class TcecSampler:
                         f"Recomputing leaderboard on new random neighbours."
                     )
                 while len(self._leaderboard) == 0:
-                    current_nodes = np.random.choice(
+                    current_nodes = random.sample(
                         list(self.subG.nodes),
                         max(int(self.subG.number_of_nodes() * self.neigh_eval_frac), 1),
                     )
@@ -248,10 +248,9 @@ class TcecSampler:
                 if neigh not in self.subG
             ]
             if len(neighs) > 0:
-                neighs = np.random.choice(
+                neighs = random.sample(
                     neighs,
-                    max(int(len(neighs) * self.neigh_eval_frac), 1),
-                    replace=False,
+                    max(int(len(neighs) * self.neigh_eval_frac), 1)
                 )
             # update in_deg_weight and border info
             for neigh in neighs:

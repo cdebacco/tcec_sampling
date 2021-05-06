@@ -1,6 +1,7 @@
 import math
 import os
 import warnings
+import random
 
 import networkx as nx
 import numpy as np
@@ -189,13 +190,14 @@ def _random_walk_step(
     if weight_feature is not None:
         probs = np.array([succ[x][weight_feature] for x in succ if x != current_node])
         probs /= probs.sum()
-        next_node = np.random.choice(
-            [node for node in succ if node != current_node], p=probs
-        )
+        # avoid using np.random.choice directly on succ list, as transforming into numpy array changes the internal type
+        # of some objects (e.g. str to numpy.str). This may cause type compatibility errors.
+        next_node_idx = np.random.choice(len(probs), size=1, p=probs)[0]
+        next_node = [node for node in succ if node != current_node][next_node_idx]
     else:
         # if no weight feature is given, sample among neighbours
         if walk_type == "rw":
-            next_node = np.random.choice([x for x in succ if x != current_node])
+            next_node = random.choice([x for x in succ if x != current_node])
         elif walk_type == "mhrw":
             if directed:
                 pred = predecessors(current_node)
@@ -221,16 +223,16 @@ def _random_walk_step(
                 probs = np.ones_like(probs)
             # normalize to sum 1
             probs /= sum(probs)
-            next_node = np.random.choice(
-                [node for node in succ.keys() if node != current_node], p=probs
-            )
+            next_node_idx = np.random.choice(len(probs), size=1, p=probs)[0]
+            next_node = [node for node in succ if node != current_node][next_node_idx]
         elif walk_type == "degree_weighted_rw":
             if directed:
-                probs = np.array([len(predecessors(neigh)) for neigh in succ])
+                probs = np.array([len(predecessors(node)) for node in succ if node != current_node])
             else:
-                probs = np.array([len(successors(neigh)) for neigh in succ])
+                probs = np.array([len(successors(node)) for node in succ if node != current_node])
             probs = probs / sum(probs)
-            next_node = np.random.choice(list(succ.keys()), p=probs)
+            next_node_idx = np.random.choice(len(probs), size=1, p=probs)[0]
+            next_node = [node for node in succ if node != current_node][next_node_idx]
         elif walk_type == "degree_greedy":
             if directed:
                 next_node = max(succ, key=lambda x: len(predecessors(x)))

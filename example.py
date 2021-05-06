@@ -49,7 +49,7 @@ sampler.sample(
     directed=G.is_directed(),
     predecessors=predecessors,
     successors=successors,
-    sample_size=N_nodes,
+    sample_size=N_nodes
 )
 
 # all the information is stored as sampler attributes. In particular, the sampled subgraph is stored as sampler.subG
